@@ -1,0 +1,17 @@
+{
+  "name": "gulp-statil",
+  "version": "0.0.1",
+  "description": "Gulp plugin for statil, a lightweight static site generator.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mitranim",
+  "license": "MIT",
+  "keywords": ["static", "site", "generator", "gulp", "plugin"],
+  "dependencies": {
+    "lodash": "^3.3.1",
+    "statil": "latest",
+    "through2": "^0.6.3"
+  }
+}

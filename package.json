@@ -9,6 +9,10 @@
   "author": "Mitranim",
   "license": "MIT",
   "keywords": ["static", "site", "generator", "gulp", "plugin"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mitranim/gulp-statil.git"
+  },
   "dependencies": {
     "lodash": "^3.3.1",
     "statil": "latest",

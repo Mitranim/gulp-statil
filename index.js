@@ -129,8 +129,7 @@ module.exports = function(options) {
    * @type Function
    */
   function flush(callback) {
-    // Render each file and write back the compiled contents, pushing the file
-    // back to the stream when done.
+    // Render each template, passing the locals, if any.
     try {
       var rendered = statil.renderAll(locals)
     } catch (err) {
@@ -151,7 +150,7 @@ module.exports = function(options) {
 
       // Look for a matching rendered template. Emit an error if not found.
       if (!rendered[path]) {
-        this.emit('error', new Error("couldn't render a template at path: " + file.path))
+        this.emit('error', new Error("couldn't render template at path: " + file.path))
         callback()
         return
       }
@@ -160,7 +159,6 @@ module.exports = function(options) {
       file = file.clone({contents: false})
       file.contents = new Buffer(rendered[path])
       this.push(file)
-
     }, this)
 
     // Signal the readiness.

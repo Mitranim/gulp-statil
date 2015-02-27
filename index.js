@@ -38,8 +38,10 @@ var through = require('through2')
  * @name relativeDir
  * @type String
  * @description The name of the template directory relative to the current
- * process's working directory. If supplied, template paths will be rebased
- * to this path (basically, this prefix will be stripped from the paths).
+ * process's working directory. Basically, this prefix will be stripped from
+ * template paths for the purpose of $include calls inside templates. For
+ * example, if templates are in ./src/templates and your gulpfile is in ./,
+ * this value should be ./src/templates.
  *
  * @name locals
  * @type Hash
@@ -95,15 +97,15 @@ module.exports = function(options) {
       return
     }
 
-    // I don't know how to deal with a stream.
-    if (file.isStream()) {
-      this.emit('error', new Error("I don't know how to deal with a stream"))
+    // Ignore a directory.
+    if (file.isDirectory()) {
       callback()
       return
     }
 
-    // Ignore a directory.
-    if (file.isDirectory()) {
+    // I don't know how to deal with a stream.
+    if (file.isStream()) {
+      this.emit('error', new Error("I don't know how to deal with a stream"))
       callback()
       return
     }
@@ -132,6 +134,10 @@ module.exports = function(options) {
     // Render each template, passing the locals, if any.
     try {
       var rendered = statil.renderAll(locals)
+      // The returned value must be a hash.
+      if (!_.isObject(rendered)) {
+        throw new Error('unexpected return value from Statil#renderAll: ' + rendered)
+      }
     } catch (err) {
       this.emit('error', err)
       callback()

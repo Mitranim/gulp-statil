@@ -20,14 +20,25 @@ var $ = require('gulp-load-plugins')() // if you're not using this, start now
 
 gulp.task('templates', function() {
   return gulp.src(<templatesDir> + '/**/*')
-    .pipe(<any filter or transform>)
+    .pipe(...)
     .pipe($.statil({relativeDir: <templatesDir>})) // relativeDir is required
-    .pipe(<any filter or transform>)
-    .pipe(gulp.dest(<destinationDir>))
+    .pipe(...)
+    .pipe(gulp.dest(...))
 })
+```
+
+To run tests, clone the repo, `cd` to its directory, run `npm i`, and use:
+
+```shell
+npm test
+```
+
+To watch files and rerun tests when tinkering with the source, use:
+
+```shell
+npm run autotest
 ```
 
 ## ToDo / WIP
 
-Include a full API reference.
-Write tests.
+Include an options reference.

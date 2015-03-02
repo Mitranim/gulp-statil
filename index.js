@@ -7,14 +7,14 @@
  *
  * 2. Buffer files until all of them have been read.
  *
- * 3. While buffering the files, for each file, register its source with the
- *    statil, rebasing relative to the current process's working directory and
- *    options.relativeDir (if any), then compile its template and register the
- *    compiled template with the statil.
+ * 3. While buffering the files, register each of them with the statil,
+ *    compiling the template function. File paths are rebased to process.cwd()
+ *    (the directory whence you run gulp) and options.relativeDir (if provided).
  *
- * 4. When all files have been buffered, render all of them. Each rendered
- *    string is converted into a Buffer and written as the contents of the
- *    corresponding file stream.
+ * 4. When all files have been buffered and compiled, render all templates,
+ *    passing options.locals (if provided). Convert each rendered string into a
+ *    Buffer and write it to a clone of the original file. Pump the clones back
+ *    into the stream.
  */
 
 /******************************* Dependencies ********************************/

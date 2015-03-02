@@ -8,8 +8,9 @@
  * 2. Buffer files until all of them have been read.
  *
  * 3. While buffering the files, register each of them with the statil,
- *    compiling the template function. File paths are rebased to process.cwd()
- *    (the directory whence you run gulp) and options.relativeDir (if provided).
+ *    compiling its contents into a template function. File paths are rebased
+ *    to process.cwd() (the directory whence you run gulp) and
+ *    options.relativeDir (if provided).
  *
  * 4. When all files have been buffered and compiled, render all templates,
  *    passing options.locals (if provided). Convert each rendered string into a
@@ -28,9 +29,9 @@ var through = require('through2')
 
 /**
  * Takes a hash of options and creates a stream that buffers the incoming
- * files while compiling the available complete files until the incoming
- * stream dries up, then renders all templates and pumps the results back into
- * the stream, producing a group of files with rendered template contents.
+ * files while compiling the available files until the incoming stream dries up,
+ * then renders all templates and pumps the results back into the stream,
+ * producing a group of files with rendered contents.
  *
  * Most of the options are passed directly to the statil constructor used
  * internally, but there are two additional options used by this generator:

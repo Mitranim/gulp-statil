@@ -2,8 +2,9 @@
 
 /******************************* Dependencies ********************************/
 
-var _       = require('lodash')
-var Statil  = require('statil')
+var _      = require('lodash')
+var pt     = require('path')
+var Statil = require('statil')
 
 /**
  * Mock require('statil') before requiring gulp-statil.
@@ -138,32 +139,9 @@ describe('gulp-statil', function() {
 
     // Create and register mock files.
     beforeEach(function() {
-      // Mock template files.
-      this.first = _.assign(file(), {
-        contents: new Buffer('first <%= secret %> with <%= $meta.metaSecret %> and <%= firstSecret %>'),
-        path:     'templates/first.html'
-      })
-      this.second = _.assign(file(), {
-        contents: new Buffer('second <%= secret %> with <%= $meta.metaSecret %> and <%= secondSecret %>'),
-        path:     'templates/second.html'
-      })
-
-      // Mock meta files.
-      this.meta = _.assign(file(), {
-        contents: new Buffer(JSON.stringify({
-          metaSecret: 'something wild',
-          files: {
-            first: {firstSecret: 'rare pokemon'},
-            second: {secondSecret: 'flying carpet'}
-          }
-        })),
-        path: 'templates/meta.yaml'
-      })
-
-      // Register them.
-      this.stream._transform(this.first,  null, _.noop)
-      this.stream._transform(this.second, null, _.noop)
-      this.stream._transform(this.meta,   null, _.noop)
+      this.stream._transform(templates().first,  null, _.noop)
+      this.stream._transform(templates().second, null, _.noop)
+      this.stream._transform(meta(),             null, _.noop)
     })
 
     it("calls Statil#renderAll, passing 'options.locals'", function() {
@@ -182,7 +160,10 @@ describe('gulp-statil', function() {
       var paths    = _.sortBy(_.map(buffer, 'path'))
       var contents = _.sortBy(_.map(buffer, 'contents'))
 
-      expect(paths).toEqual(['templates/first.html', 'templates/second.html'])
+      expect(paths).toEqual([
+        pt.join(process.cwd(), 'templates/first.html'),
+        pt.join(process.cwd(), 'templates/second.html')
+      ])
       expect(contents).toEqual([
         new Buffer('first something special with something wild and rare pokemon'),
         new Buffer('second something special with something wild and flying carpet')
@@ -248,6 +229,37 @@ function badFile() {
     contents: new Buffer('secret contents'),
     path: null
   }
+}
+
+// Mock template files.
+function templates() {
+  return {
+
+    first: _.assign(file(), {
+      contents: new Buffer('first <%= secret %> with <%= $meta.metaSecret %> and <%= firstSecret %>'),
+      path:     pt.join(process.cwd(), 'templates/first.html')
+    }),
+
+    second: _.assign(file(), {
+      contents: new Buffer('second <%= secret %> with <%= $meta.metaSecret %> and <%= secondSecret %>'),
+      path:     pt.join(process.cwd(), 'templates/second.html')
+    })
+
+  }
+}
+
+// Mock meta file.
+function meta() {
+  return _.assign(file(), {
+    contents: new Buffer(JSON.stringify({
+      metaSecret: 'something wild',
+      files: {
+        first:  {firstSecret:  'rare pokemon'},
+        second: {secondSecret: 'flying carpet'}
+      }
+    })),
+    path: pt.join(process.cwd(), 'templates/meta.yaml')
+  })
 }
 
 /********************************* Utilities *********************************/

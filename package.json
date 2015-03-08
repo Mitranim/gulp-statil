@@ -24,7 +24,8 @@
   "dependencies": {
     "lodash": "^3.3.1",
     "statil": "latest",
-    "through2": "^0.6.3"
+    "through2": "^0.6.3",
+    "vinyl": "^0.4.6"
   },
   "devDependencies": {
     "jasmine-node": "^1.14.5"

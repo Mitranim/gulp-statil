@@ -2,10 +2,10 @@
   "name": "gulp-statil",
   "version": "0.0.1",
   "description": "Gulp plugin for statil, a lightweight static site generator.",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "jasmine-node tests",
-    "autotest": "jasmine-node --autotest tests --watch ./",
+    "autotest": "jasmine-node --autotest tests --watch ./lib",
     "prepublish": "npm test"
   },
   "author": "Mitranim",

@@ -13,7 +13,7 @@ var statilSpy = jasmine.createSpy('spy for Statil')
 statilSpy.plan = Statil
 cached.exports = statilSpy
 
-var gst     = require('../index')
+var gst     = require('../lib/index')
 var through = require('through2')
 var Stream  = require('stream')
 

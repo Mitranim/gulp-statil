@@ -127,8 +127,9 @@ module.exports = function(options) {
   }
 
   /**
-   * Flush function. Renders all templates and pumps the files back into the
-   * stream.
+   * Flush function. Renders all templates and pumps the resulting files back
+   * into the stream. The number of files may be different (metadata files are
+   * not rendered).
    * @type Function
    */
   function flush(callback) {
@@ -155,12 +156,8 @@ module.exports = function(options) {
       // Rebase the file path.
       path = pt.relative(templateDir, path)
 
-      // Look for a matching rendered template. Emit an error if not found.
-      if (!rendered[path]) {
-        this.emit('error', new Error("couldn't render template at path: " + file.path))
-        callback()
-        return
-      }
+      // Ignore the file if no matching rendered result is found.
+      if (!rendered[path]) return
 
       // Write the rendered content to a clone and push the file into the stream.
       file = file.clone({contents: false})

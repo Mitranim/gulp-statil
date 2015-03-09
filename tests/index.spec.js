@@ -2,18 +2,21 @@
 
 /******************************* Dependencies ********************************/
 
-var _       = require('lodash')
-var Statil  = require('statil')
+var _      = require('lodash')
+var pt     = require('path')
+var Statil = require('statil')
 
 /**
  * Mock require('statil') before requiring gulp-statil.
  */
 var cached = _.find(require.cache, {exports: Statil})
 var statilSpy = jasmine.createSpy('spy for Statil')
-statilSpy.plan = Statil
+statilSpy.plan = function(options) {
+  return new Statil(options)
+}
 cached.exports = statilSpy
 
-var gst     = require('../index')
+var gst     = require('../lib/index')
 var through = require('through2')
 var Stream  = require('stream')
 
@@ -31,7 +34,8 @@ describe('statil spy', function() {
   })
 
   it('calls through to the Statil constructor', function() {
-    expect(require('statil')()).toEqual(jasmine.any(Statil))
+    var statilSpy = require('statil')
+    expect(new statilSpy()).toEqual(jasmine.any(Statil))
   })
 
   it('properly responds to toHaveBeenCalled and not.toHaveBeenCalled', function() {
@@ -81,45 +85,51 @@ describe('gulp-statil', function() {
     })
 
     it('ignores an empty file', function() {
-      expect(this.transform.bind(this.stream, fileNull(), null, this.spy)).not.toThrow()
+      expect(this.transform.bind(this.stream, mockNull(), null, this.spy)).not.toThrow()
       expect(this.spy).toHaveBeenCalled()
     })
 
     it('ignores a directory', function() {
-      expect(this.transform.bind(this.stream, fileDir(), null, this.spy)).not.toThrow()
+      expect(this.transform.bind(this.stream, mockDir(), null, this.spy)).not.toThrow()
       expect(this.spy).toHaveBeenCalled()
     })
 
     it('emits an error when given a stream', function() {
       spyOn(this.stream, 'emit')
-      expect(this.transform.bind(this.stream, fileStream(), null, this.spy)).not.toThrow()
+      expect(this.transform.bind(this.stream, mockStream(), null, this.spy)).not.toThrow()
       expect(this.stream.emit).toHaveBeenCalledWith('error', jasmine.any(Error))
       expect(this.spy).toHaveBeenCalled()
     })
 
-    it('passes files to Statil#register, including path and cwd', function() {
+    it('passes files to Statil#register, rebasing paths relatively to cwd', function() {
       spyOn(Statil.prototype, 'register').andCallThrough()
-      expect(this.transform.bind(this.stream, file(), null, this.spy)).not.toThrow()
+
+      expect(this.transform.bind(this.stream, mockFile(), null, this.spy)).not.toThrow()
+      var path = pt.relative(process.cwd(), mockFile().path)
+
       expect(Statil.prototype.register).toHaveBeenCalledWith(
-        file().contents.toString(), file().path, process.cwd()
+        mockFile().contents.toString(), path
       )
     })
 
-    it("adds 'relativeDir' to the cwd", function() {
+    it('rebases paths relatively to cwd and relativeDir, if available', function() {
       spyOn(Statil.prototype, 'register').andCallThrough()
 
-      var stream = gst({relativeDir: 'src/templates'})
-      var transform = stream._transform
+      this.stream = gst({relativeDir: 'templates'})
+      this.transform = this.stream._transform
+      this.spy = jasmine.createSpy('callback spy')
 
-      expect(transform.bind(stream, file(), null, this.spy)).not.toThrow()
+      expect(this.transform.bind(this.stream, mockFile(), null, this.spy)).not.toThrow()
+      var path = pt.relative(pt.join(process.cwd(), 'templates'), mockFile().path)
+
       expect(Statil.prototype.register).toHaveBeenCalledWith(
-        file().contents.toString(), file().path, process.cwd() + '/src/templates'
+        mockFile().contents.toString(), path
       )
     })
 
     it('emits an error if #register fails', function() {
       spyOn(this.stream, 'emit')
-      expect(this.transform.bind(this.stream, badFile(), null, this.spy)).not.toThrow()
+      expect(this.transform.bind(this.stream, mockBadFile(), null, this.spy)).not.toThrow()
       expect(this.stream.emit).toHaveBeenCalledWith('error', jasmine.any(Error))
       expect(this.spy).toHaveBeenCalled()
     })
@@ -138,46 +148,41 @@ describe('gulp-statil', function() {
 
     // Create and register mock files.
     beforeEach(function() {
-      // Create mock files.
-      this.first = _.assign(file(), {
-        contents: new Buffer('first <%= secret %>'),
-        path:     'templates/first'
-      })
-      this.second = _.assign(file(), {
-        contents: new Buffer('second <%= secret %>'),
-        path:     'templates/second'
-      })
-
-      // Register them.
-      this.stream._transform(this.first, null, _.noop)
-      this.stream._transform(this.second, null, _.noop)
+      this.stream._transform(mockTemplates().first,  null, _.noop)
+      this.stream._transform(mockTemplates().second, null, _.noop)
+      this.stream._transform(mockMeta(),             null, _.noop)
     })
 
-    it("calls Statil#renderAll, passing 'options.locals'", function() {
-      spyOn(Statil.prototype, 'renderAll').andCallThrough()
+    it("calls Statil#render, passing 'options.locals'", function() {
+      spyOn(Statil.prototype, 'render').andCallThrough()
+
       expect(this.flush.bind(this.stream, this.spy)).not.toThrow()
-      expect(Statil.prototype.renderAll).toHaveBeenCalledWith(this.locals)
+
+      expect(Statil.prototype.render).toHaveBeenCalledWith(this.locals)
       expect(this.spy).toHaveBeenCalled()
     })
 
-    it('pushes rendered files back into the stream', function() {
+    it('pushes rendered files (without the meta files, if any) back into the stream', function() {
       this.stream._flush(this.spy)
 
       var buffer   = this.stream._readableState.buffer
       var paths    = _.sortBy(_.map(buffer, 'path'))
       var contents = _.sortBy(_.map(buffer, 'contents'))
 
-      expect(paths).toEqual(['templates/first', 'templates/second'])
+      expect(paths).toEqual([
+        pt.join(process.cwd(), 'templates/first.html'),
+        pt.join(process.cwd(), 'templates/second.html')
+      ])
       expect(contents).toEqual([
-        new Buffer('first something special'),
-        new Buffer('second something special')
+        new Buffer('first something special with something wild and rare pokemon'),
+        new Buffer('second something special with something wild and flying carpet')
       ])
 
       expect(this.spy).toHaveBeenCalled()
     })
 
     it('emits an error if rendering fails', function() {
-      spyOn(Statil.prototype, 'renderAll').andThrow()
+      spyOn(Statil.prototype, 'render').andThrow()
       spyOn(this.stream, 'emit')
       expect(this.flush.bind(this.stream, this.spy)).not.toThrow()
       expect(this.stream.emit).toHaveBeenCalledWith('error', undefined)
@@ -190,7 +195,7 @@ describe('gulp-statil', function() {
 
 /********************************* Constants *********************************/
 
-function fileNull() {
+function mockNull() {
   return {
     isNull: _.constant(true),
     isStream: _.constant(false),
@@ -198,7 +203,7 @@ function fileNull() {
   }
 }
 
-function fileDir() {
+function mockDir() {
   return {
     isNull: _.constant(false),
     isStream: _.constant(false),
@@ -206,7 +211,7 @@ function fileDir() {
   }
 }
 
-function fileStream() {
+function mockStream() {
   return {
     isNull: _.constant(false),
     isStream: _.constant(true),
@@ -214,18 +219,18 @@ function fileStream() {
   }
 }
 
-function file() {
+function mockFile() {
   return {
     isNull: _.constant(false),
     isStream: _.constant(false),
     isDirectory: _.constant(false),
     contents: new Buffer('secret contents'),
-    path: 'secret/path',
+    path: pt.join(process.cwd(), 'templates/page.html'),
     clone: function() {return _.clone(this)}
   }
 }
 
-function badFile() {
+function mockBadFile() {
   return {
     isNull: _.constant(false),
     isStream: _.constant(false),
@@ -233,6 +238,37 @@ function badFile() {
     contents: new Buffer('secret contents'),
     path: null
   }
+}
+
+// Mock template files.
+function mockTemplates() {
+  return {
+
+    first: _.assign(mockFile(), {
+      contents: new Buffer('first <%= secret %> with <%= $meta.metaSecret %> and <%= firstSecret %>'),
+      path:     pt.join(process.cwd(), 'templates/first.html')
+    }),
+
+    second: _.assign(mockFile(), {
+      contents: new Buffer('second <%= secret %> with <%= $meta.metaSecret %> and <%= secondSecret %>'),
+      path:     pt.join(process.cwd(), 'templates/second.html')
+    })
+
+  }
+}
+
+// Mock meta file.
+function mockMeta() {
+  return _.assign(mockFile(), {
+    contents: new Buffer(JSON.stringify({
+      metaSecret: 'something wild',
+      files: [
+        {name: 'first',  firstSecret:  'rare pokemon'},
+        {name: 'second', secondSecret: 'flying carpet'}
+      ]
+    })),
+    path: pt.join(process.cwd(), 'templates/meta.yaml')
+  })
 }
 
 /********************************* Utilities *********************************/

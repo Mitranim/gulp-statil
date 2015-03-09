@@ -1,6 +1,6 @@
 {
   "name": "gulp-statil",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Gulp plugin for statil, a lightweight static site generator.",
   "main": "lib/index.js",
   "scripts": {

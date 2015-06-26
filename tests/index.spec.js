@@ -112,10 +112,10 @@ describe('gulp-statil', function() {
       )
     })
 
-    it('rebases paths relatively to cwd and relativeDir, if available', function() {
+    it('rebases paths relatively to cwd and stripPrefix, if available', function() {
       spyOn(Statil.prototype, 'register').andCallThrough()
 
-      this.stream = gst({relativeDir: 'templates'})
+      this.stream = gst({stripPrefix: 'templates'})
       this.transform = this.stream._transform
       this.spy = jasmine.createSpy('callback spy')
 
@@ -124,6 +124,35 @@ describe('gulp-statil', function() {
 
       expect(Statil.prototype.register).toHaveBeenCalledWith(
         mockFile().contents.toString(), path
+      )
+    })
+
+    it('accepts stripPrefix as a hash of patterns and prefixes', function() {
+      spyOn(Statil.prototype, 'register').andCallThrough()
+
+      this.stream = gst({stripPrefix: {
+        'first-dir/.*.html': 'first-dir',
+        'second-dir/.*.html': 'second-dir'
+      }})
+      this.transform = this.stream._transform
+      this.spy = jasmine.createSpy('callback spy')
+
+      // First.
+      var file = mockFile()
+      file.path = pt.join(process.cwd(), 'first-dir/page.html')
+      expect(this.transform.bind(this.stream, file, null, this.spy)).not.toThrow()
+      var path = pt.relative(pt.join(process.cwd(), 'first-dir'), file.path)
+      expect(Statil.prototype.register).toHaveBeenCalledWith(
+        file.contents.toString(), path
+      )
+
+      // Second.
+      var file = mockFile()
+      file.path = pt.join(process.cwd(), 'second-dir/page.html')
+      expect(this.transform.bind(this.stream, file, null, this.spy)).not.toThrow()
+      var path = pt.relative(pt.join(process.cwd(), 'second-dir'), file.path)
+      expect(Statil.prototype.register).toHaveBeenCalledWith(
+        file.contents.toString(), path
       )
     })
 

@@ -21,7 +21,7 @@ var $ = require('gulp-load-plugins')() // if you're not using this, start now
 gulp.task('templates', function() {
   return gulp.src(<templatesDir> + '/**/*')
     .pipe(...)
-    .pipe($.statil({relativeDir: <templatesDir>})) // relativeDir is required
+    .pipe($.statil({stripPrefix: <templatesDir>}))
     .pipe(...)
     .pipe(gulp.dest(...))
 })

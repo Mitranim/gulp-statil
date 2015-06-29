@@ -1,6 +1,6 @@
 {
   "name": "gulp-statil",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Gulp plugin for statil, a lightweight static site generator.",
   "main": "lib/index.js",
   "scripts": {
@@ -22,12 +22,12 @@
     "url": "https://github.com/Mitranim/gulp-statil.git"
   },
   "dependencies": {
-    "lodash": "^3.3.1",
-    "statil": "latest",
+    "statil": "~0.1.1",
     "through2": "^0.6.3",
     "vinyl": "^0.4.6"
   },
   "devDependencies": {
-    "jasmine-node": "^1.14.5"
+    "jasmine-node": "^1.14.5",
+    "lodash": "^3.3.1"
   }
 }

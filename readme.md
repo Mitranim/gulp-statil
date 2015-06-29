@@ -16,29 +16,20 @@ npm i --save-dev gulp-statil
 In your `gulpfile.js`:
 
 ```javascript
-var $ = require('gulp-load-plugins')() // if you're not using this, start now
+var statil = require('gulp-statil');
 
 gulp.task('templates', function() {
-  return gulp.src(<templatesDir> + '/**/*')
-    .pipe(...)
-    .pipe($.statil({stripPrefix: <templatesDir>}))
-    .pipe(...)
-    .pipe(gulp.dest(...))
+  return gulp.src('src/html/**/*')
+    .pipe(statil(/* statil options */))
+    .pipe(gulp.dest('dist'))
 })
 ```
 
-To run tests, clone the repo, `cd` to its directory, run `npm i`, and use:
+## Options
 
-```shell
-npm test
-```
+The options are passed directly to `statil`, and one additional option is
+available.
 
-To watch files and rerun tests when tinkering with the source, use:
+### `options.locals`
 
-```shell
-npm run autotest
-```
-
-## ToDo / WIP
-
-Include an options reference.
+Passed into the `Statil#render` call when rendering all templates.

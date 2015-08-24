@@ -4,17 +4,17 @@
 
 var _      = require('lodash');
 var pt     = require('path');
-var Statil = require('statil');
+var Statil = require('statil').Statil;
 
 /**
  * Mock require('statil') before requiring gulp-statil.
  */
-var cached = _.find(require.cache, {exports: Statil});
+var cached = _.find(require.cache, {exports: {Statil: Statil}});
 var statilSpy = jasmine.createSpy('spy for Statil');
 statilSpy.plan = function(options) {
   return new Statil(options);
 }
-cached.exports = statilSpy;
+cached.exports = {Statil: statilSpy};
 
 var gst     = require('../lib/index');
 var through = require('through2');
@@ -30,18 +30,18 @@ describe('statil spy', function() {
   });
 
   it('it returned from a `require` call', function() {
-    expect(require('statil')).toBe(statilSpy);
+    expect(require('statil')).toEqual({Statil: statilSpy});
   });
 
   it('calls through to the Statil constructor', function() {
-    var statilSpy = require('statil');
+    var statilSpy = require('statil').Statil;
     expect(new statilSpy()).toEqual(jasmine.any(Statil));
   });
 
   it('properly responds to toHaveBeenCalled and not.toHaveBeenCalled', function() {
-    expect(require('statil')).not.toHaveBeenCalled();
-    require('statil')();
-    expect(require('statil')).toHaveBeenCalled();
+    expect(require('statil').Statil).not.toHaveBeenCalled();
+    require('statil').Statil();
+    expect(require('statil').Statil).toHaveBeenCalled();
   });
 
 });

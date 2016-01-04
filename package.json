@@ -1,18 +1,19 @@
 {
   "name": "gulp-statil",
-  "version": "0.0.6",
-  "description": "Gulp plugin for statil, a lightweight static site generator.",
-  "main": "lib/index.js",
+  "version": "0.0.7",
+  "description": "Gulp plugin for statil, a lightweight HTML generator",
+  "main": "lib/gulp-statil.js",
   "scripts": {
-    "test": "jasmine-node tests",
-    "autotest": "jasmine-node --autotest tests --watch ./lib",
-    "prepublish": "npm test"
+    "start": "node test/test && node watch",
+    "test": "node test/test",
+    "prepublish": "node test/test"
   },
   "author": "Mitranim",
   "license": "MIT",
   "keywords": [
     "static",
     "site",
+    "html",
     "generator",
     "gulp",
     "plugin"
@@ -22,13 +23,10 @@
     "url": "https://github.com/Mitranim/gulp-statil.git"
   },
   "dependencies": {
-    "gulp-util": "^3.0.6",
-    "statil": "^0.2.1",
+    "gulp-util": "^3.0.7",
+    "lodash": "^3.10.1",
+    "statil": "^0.3.0",
     "through2": "^0.6.5",
     "vinyl": "^0.4.6"
-  },
-  "devDependencies": {
-    "jasmine-node": "^1.14.5",
-    "lodash": "^3.10.1"
   }
 }

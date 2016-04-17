@@ -6,7 +6,7 @@
 
 const _ = require('lodash')
 const pt = require('path')
-const gulpStatil = require('../lib/gulp-statil')
+const gulpStatil = require(process.cwd())
 
 /**
  * Test
@@ -33,7 +33,7 @@ const expectedPaths = ['html/first.html', 'html/second.html']
 
 if (!_.isEqual(paths, expectedPaths)) throw Error()
 
-const contents = _.sortBy(_.invoke(_.map(buffer, 'contents'), 'toString'))
+const contents = _.sortBy(_.invokeMap(_.map(buffer, 'contents'), 'toString'))
 const expectedContents = [
   'first something special',
   'second something special'
@@ -83,5 +83,5 @@ function files () {
 console.log(`[${pad(new Date().getHours())}:${pad(new Date().getMinutes())}:${pad(new Date().getSeconds())}] Finished test without errors.`)
 
 function pad (val) {
-  return _.padLeft(val, 2, '0')
+  return _.padStart(val, 2, '0')
 }

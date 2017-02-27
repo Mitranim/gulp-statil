@@ -12,7 +12,10 @@ const gulpStatil = require(process.cwd())
  * Test
  */
 
-const options = {data: {secret: 'something special'}, ignorePaths: ['html/third.html']}
+const options = {
+  ignorePath: path => path === 'html/third.html',
+  imports: {secret: 'something special'},
+}
 
 const stream = gulpStatil(options)
 
@@ -26,14 +29,14 @@ stream._flush(value => {
 
 if (err !== null) throw Error()
 
-const buffer = stream._readableState.buffer
+const bufferFiles = flatBufferData(stream._readableState.buffer.head)
 
-const paths = _.sortBy(_.map(buffer, 'relative'))
+const paths = _.sortBy(_.map(bufferFiles, 'relative'))
 const expectedPaths = ['html/first.html', 'html/second.html']
 
 if (!_.isEqual(paths, expectedPaths)) throw Error()
 
-const contents = _.sortBy(_.invokeMap(_.map(buffer, 'contents'), 'toString'))
+const contents = _.sortBy(_.invokeMap(_.map(bufferFiles, 'contents'), 'toString'))
 const expectedContents = [
   'first something special',
   'second something special'
@@ -74,6 +77,10 @@ function files () {
       relative: 'html/third.html'
     })
   ]
+}
+
+function flatBufferData ({data, next}) {
+  return [...(data ? [data] : []), ...(next ? flatBufferData(next) : [])]
 }
 
 /**

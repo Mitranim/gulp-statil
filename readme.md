@@ -3,7 +3,7 @@
 ## Description
 
 This is a [`gulp`](http://gulpjs.com) plugin for
-[`statil`](https://github.com/Mitranim/statil), a lightweight HTML generator.
+[`Statil`](https://github.com/Mitranim/statil), a lightweight HTML generator.
 
 ## Installation and Usage
 
@@ -27,4 +27,4 @@ gulp.task('templates', () => (
 
 ## Options
 
-`options` are passed directly to statil.
+`options` are passed directly to Statil.

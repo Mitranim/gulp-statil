@@ -1,30 +1,27 @@
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com)
-
 ## Description
 
 This is a [`gulp`](http://gulpjs.com) plugin for
-[`Statil`](https://github.com/Mitranim/statil), a lightweight HTML generator.
+[`Statil`](https://github.com/Mitranim/statil), a lightweight templating utility.
+
+Contrary to its name, this plugin doesn't actually use Statil. It simply provides a file buffering utility, which allows you to use Statil directly.
 
 ## Installation and Usage
 
-In a shell:
-
-```shell
-npm i --save-dev gulp-statil
+```sh
+npm i gulp-statil
 ```
 
 In your `gulpfile.js`:
 
-```javascript
-const statil = require('gulp-statil')
+```js
+const {withBufferedContents} = require('gulp-statil')
+const {createSettings, renderSettings} = require('statil')
 
 gulp.task('templates', () => (
   gulp.src('src/html/**/*')
-    .pipe(statil(/* options */))
+    .pipe(withBufferedContents(templates => (
+      renderSettings(createSettings(templates, {}))
+    )))
     .pipe(gulp.dest('dist'))
 ))
 ```
-
-## Options
-
-`options` are passed directly to Statil.

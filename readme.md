@@ -1,7 +1,7 @@
 ## Description
 
 This is a [`gulp`](http://gulpjs.com) plugin for
-[`Statil`](https://github.com/Mitranim/statil), a lightweight templating utility.
+[`Statil`](https://github.com/mitranim/statil), a lightweight templating utility.
 
 Contrary to its name, this plugin doesn't actually use Statil. It simply provides a file buffering utility, which allows you to use Statil directly.
 
